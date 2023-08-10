@@ -24,7 +24,7 @@ def menu():
             prompt_delete_book()
         else: 
             print("Unknown Command")
-        sleep(2)    
+        sleep(2)  
         os.system('clear')    
         user_input = input(USER_CHOICE)
             
