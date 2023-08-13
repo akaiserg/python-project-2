@@ -39,7 +39,7 @@ def list_books():
     books = database.list_books()
     if len(books) > 0:        
         for book in books:
-            read = 'YES' if book['read'] == '1' else 'NO'
+            read = 'YES' if book['read'] else 'NO'
             print(f' name: {book["name"]}, author {book["author"]}, read {read}. \n')
     else:
         print('there is not books saved.')

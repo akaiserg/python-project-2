@@ -1,25 +1,24 @@
-books_file = 'books.txt'
+import json
+
+
+books_file = 'books.json'
 
 
 
 def add_book(name, author):    
-    with open(books_file, 'a') as file:
-        file.write(f'{name},{author},0\n')
-
+    books = list_books()
+    books.append({'name': name, 'author': author, 'read': False})
+    _save_all_books(books)
+    
 def list_books():
     with open(books_file, 'r') as file:
-        lines = [line.strip().split(',') for line in file.readlines()]
-        books = [
-            {'name': line[0], 'author': line[1], 'read': line[2]}
-            for line in lines
-        ]
-    return books
+        return json.load(file)
 
 def mark_as_read(name):
     books = list_books()
     for book in books:
         if book['name'] == name:
-            book['read'] = '1'
+            book['read'] = True
     _save_all_books(books)
  
 
@@ -33,8 +32,7 @@ def delete_book(name):
 
 def _save_all_books(books):
     with open(books_file, 'w') as file:
-       for book in books:
-           file.write(f"{book['name']},{book['author']},{book['read']}\n")
+       json.dump(books, file)
            
            
            
