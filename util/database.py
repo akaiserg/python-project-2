@@ -1,38 +1,41 @@
-import json
 
 
-books_file = 'books.json'
+from .database_connection import DatabaseConnection
+
+books_file = 'data.db'
 
 
+
+def create_book_table():
+    with DatabaseConnection(books_file) as connection:
+        cursor = connection.cursor()
+        cursor.execute('CREATE TABLE IF NOT EXISTS books(name text primary key, author text, read integer)')
+        
 
 def add_book(name, author):    
-    books = list_books()
-    books.append({'name': name, 'author': author, 'read': False})
-    _save_all_books(books)
+    with DatabaseConnection(books_file) as connection:
+        cursor = connection.cursor()
+        #cursor.execute(f'INSERT INTO books VALUES ("{name}", "{author}", 0)')
+        cursor.execute(f'INSERT INTO books VALUES (?, ?, 0)',(name, author))    
+    
     
 def list_books():
-    with open(books_file, 'r') as file:
-        return json.load(file)
+    with DatabaseConnection(books_file) as connection:
+        cursor = connection.cursor()    
+        cursor.execute('Select * from books')
+        books = [{'name': row[0], 'author': row[1], 'read': row[2]} for row in cursor.fetchall()]  # [(name, author, read), (name, author, read)]
+    
+    connection.close()
+    return books
 
 def mark_as_read(name):
-    books = list_books()
-    for book in books:
-        if book['name'] == name:
-            book['read'] = True
-    _save_all_books(books)
- 
-
-def delete_book(name):    
-    books = list_books()
-    for book in books:
-        if book['name'] == name:
-            books.remove(book)
-    _save_all_books(books)
+    with DatabaseConnection(books_file) as connection:
+        cursor = connection.cursor()    
+        cursor.execute(f'UPDATE books SET read=1 WHERE name=?',(name,))
     
 
-def _save_all_books(books):
-    with open(books_file, 'w') as file:
-       json.dump(books, file)
-           
-           
-           
+def delete_book(name):    
+    with DatabaseConnection(books_file) as connection:
+        cursor = connection.cursor()    
+        cursor.execute(f'DELETE FROM books WHERE name=?',(name,))
+    
